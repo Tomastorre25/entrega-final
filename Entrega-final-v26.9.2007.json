@@ -1,0 +1,2497 @@
+{
+  "name": "Entrega-final-v26.9.2007",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "==Evalúa el siguiente ticket de reclamo para Black Move:\n\nFECHA ACTUAL DEL SISTEMA: {{ $now.format('yyyy-MM-dd') }}\n\nDATOS DEL TICKET:\n- ID Ticket: {{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}\n- Fecha del reclamo: {{ $('Organizar datos y generar Ticket ID').item.json.fecha }}\n- Tipo de Solicitud: {{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\n- Número de Pedido: {{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}\n- Fecha de Entrega: {{ $('Organizar datos y generar Ticket ID').item.json.body.fechaEntrega }}\n- Detalle del Reclamo: {{ $('Organizar datos y generar Ticket ID').item.json.detalle_reclamo }}\n- Talle Actual: {{ $('Organizar datos y generar Ticket ID').item.json.body.talleActual }}\n- Talle Deseado: {{ $('Organizar datos y generar Ticket ID').item.json.body.talleDeseado }}\n- Resumen del Desperfecto: {{ $('Organizar datos y generar Ticket ID').item.json.body.resumenDesperfecto }}\n\nPOLÍTICA OFICIAL DE CAMBIOS Y DEVOLUCIONES (Contexto RAG de Notion)",
+        "options": {
+          "systemMessage": "==Eres un evaluador automático especializado en la gestión de reclamos, cambios y devoluciones para el e-commerce de indumentaria deportiva \"Black Move\".\n\nOBJETIVO: Evaluar la solicitud enviada por el cliente comparándola contra la \"Política Oficial de Cambios y Reembolsos\" recuperada del contexto RAG (Notion).\n\nREGLAS ESPECÍFICAS DE EVALUACIÓN:\n1. TRATAMIENTO DE DEFECTOS DE FÁBRICA:\n - Si el tipo de solicitud es \"Defecto de fabrica\" (ej. roturas, fallas de costura, desperfectos de origen), es TOTALMENTE ESPERADO que el producto presente una falla visual.\n - La condición \"sin uso\" aplica a que el cliente declare no haber utilizado ni lavado la prenda comercialmente tras recibirla.\n - CRÍTICO: NO exigas ni solicites fotografías o evidencia visual como condición para aprobar un reclamo por defecto de fábrica. Si el cliente declara que no la usó y mantiene las etiquetas, el dictamen DEBE ser \"Aprobado\".\n\n2. CAMBIOS DE TALLE Y DEVOLUCIONES STANDARD:\n - Exigen que la prenda esté completamente sin uso, sin lavar, con etiquetas originales colocadas y dentro del plazo estipulado.\n\n3. MANEJO DE FECHAS Y PLAZOS:\n - Compara la fecha de entrega enviada con la fecha actual del sistema. Si la fecha de entrega está dentro de los días permitidos por la política, el plazo se considera cumplido. - Si la fecha tiene un pequeño error de tipeo en el año (ej. 0026 en lugar de 2026), asume el año en curso y evalúa el día y mes.\n\nINSTRUCCIONES DE FORMATO:\nResponde ÚNICAMENTE con un objeto JSON válido en texto plano, sin bloques de código markdown (NO uses \\`\\`\\`json ni \\`\\`\\`):\n\n{\n\"id_ticket\": \"{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}\",\n\"fecha_reclamo\": \"Fecha extraida del campo {{ $('Organizar datos y generar Ticket ID').item.json.fecha }} con el formato dd-mm-yyy\" \n\"tipo_solicitud\": \"{{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\",\n\"dictamen\": \"Aprobado | Rechazado | Requiere_Revision\",\n\"cumple_politica\": true | false,\n\"justificacion\": \"Explicación breve basada en la política oficial.\",\n\"accion_sugerida\": \"Descripción de la acción recomendada para el equipo de soporte.\"\n}"
+        }
+      },
+      "id": "2e389971-2d7a-42d0-ab8d-adc496a4ff47",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        496,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "id": "07567787-fee3-4b49-8bd8-f10eab13bacf",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.6,
+      "position": [
+        496,
+        192
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0546938c-df30-488e-8bbe-45824660dadf",
+        "responseMode": "=onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        16
+      ],
+      "id": "71185069-45c1-4405-bc21-b9307a169911",
+      "name": "Toma de datos del formulario web",
+      "webhookId": "0546938c-df30-488e-8bbe-45824660dadf"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getMarkdown",
+        "pageId": {
+          "__rl": true,
+          "value": "3c89c90b2568806593ecee20a339d867",
+          "mode": "id"
+        }
+      },
+      "id": "85f0980b-67b0-4b4d-9b5f-4e062028fd3f",
+      "name": "Base de conocimientos - RAG",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 3,
+      "position": [
+        320,
+        16
+      ],
+      "credentials": {
+        "notionOAuth2Api": {
+          "id": "sBkzR0GVNN6JzhvE",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94e307ef-33c3-48c8-8ca4-8d1f4c5d09f2",
+              "name": "ID_Ticket",
+              "value": "=TK-{{ $now.toFormat('yyyyMMdd') }}-{{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "79736586-49fb-4625-9250-263b13039cf9",
+              "name": "tipo_solicitud",
+              "value": "={{ $json.body.tipoSolicitud }}",
+              "type": "string"
+            },
+            {
+              "id": "95635473-355b-4c05-a5bf-6dfc23c92d3e",
+              "name": "detalle_reclamo",
+              "value": "={{ $json.body.detalleReclamo }}",
+              "type": "string"
+            },
+            {
+              "id": "66e1c575-4dca-4a70-bbc0-1ee0a396af10",
+              "name": "numero_pedido",
+              "value": "={{ $json.body.numeroPedido }}",
+              "type": "string"
+            },
+            {
+              "id": "a71940f4-b41d-410f-a803-633402c75997",
+              "name": "body.email",
+              "value": "={{ $json.body.email }}",
+              "type": "string"
+            },
+            {
+              "id": "62c1d60b-79d1-44b0-b255-e17480f84099",
+              "name": "body.telefono",
+              "value": "={{ $json.body.telefono }}",
+              "type": "number"
+            },
+            {
+              "id": "fdbf09da-a450-4bd9-b524-01c872e021b0",
+              "name": "body.fechaEntrega",
+              "value": "={{ $json.body.fechaEntrega }}",
+              "type": "string"
+            },
+            {
+              "id": "8539abf3-d0ed-4cea-901b-ec6f6e8f07e8",
+              "name": "body.talleActual",
+              "value": "={{ $json.body.talleActual }}",
+              "type": "string"
+            },
+            {
+              "id": "57ae8ca7-7664-412f-b898-042a49797af7",
+              "name": "body.talleDeseado",
+              "value": "={{ $json.body.talleDeseado }}",
+              "type": "string"
+            },
+            {
+              "id": "f46f45a8-923e-46fc-8e0c-0260f73fc17d",
+              "name": "body.resumenDesperfecto",
+              "value": "={{ $json.body.resumenDesperfecto }}",
+              "type": "string"
+            },
+            {
+              "id": "0e92d496-8ae1-4846-b1eb-d9dd6eb2bf34",
+              "name": "fecha",
+              "value": "={{ $now.toFormat('yyyyMMdd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa186900-5876-400f-a232-2b80019b3f39",
+      "name": "Organizar datos y generar Ticket ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        144,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Ticket": "={{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+            "Estado": "Procesado por IA",
+            "Detalle_reclamo": "={{ $('Organizar datos y generar Ticket ID').item.json.body.resumenDesperfecto }}",
+            "Dictamen_IA": "={{ $json.dictamen }}",
+            "Justificacion_IA": "={{ $json.justificacion }}",
+            "Accion_Sugerida": "={{ $json.accion_sugerida }}",
+            "Tipo_Solicitud": "={{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}",
+            "fecha_reclamo": "={{ $('Organizar datos y generar Ticket ID').item.json.fecha }}",
+            "Cliente": "={{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}",
+            "Email": "={{ $('Organizar datos y generar Ticket ID').item.json.body.email }}"
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Requiere correccion",
+                  "value": "Requiere correccion"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Cliente",
+              "displayName": "Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5e7572fb-7a3e-42bd-8970-5b3738442214",
+      "name": "Registrar ticket en Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        976,
+        16
+      ],
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.fields.Dictamen_IA }}",
+                    "rightValue": "Rechazado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "0fd61513-654a-42cf-9890-cf366e5f927f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Rechazado"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "72c308ec-501c-46dc-a480-f646530de77c",
+                    "leftValue": "={{ $json.fields.Dictamen_IA }}",
+                    "rightValue": "Requiere_Revision",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Requiere revision"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a143987b-b396-4315-b64b-c0837821a657",
+                    "leftValue": "={{ $json.fields.Dictamen_IA }}",
+                    "rightValue": "Aprobado",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Aprobado"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "f880d177-fc15-452c-9db4-7484a0aecda3",
+      "name": "Evaluacion del dictamen de la IA"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output.trim();\nconst text = raw.replace(/^```[\\w]*\\n?/, '').replace(/\\n?```$/, '').trim();\nreturn [{ json: JSON.parse(text) }];"
+      },
+      "id": "11fad45b-c356-4679-be41-8f4f017b8753",
+      "name": "Parcear respuesta JSON de la IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C3JMFSAUR",
+          "mode": "list",
+          "cachedResultName": "reclamos-blackmove"
+        },
+        "message": "=DICTAMEN IA: APROBADO — REVISIÓN DE ETIQUETA (TICKET #{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }})\n\nDATOS DEL CLIENTE Y PEDIDO:\n• Cliente: {{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}\n• Nº Pedido: #{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}\n• Tipo de Solicitud: {{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\n\nDETALLE DEL RECLAMO:\n> {{ $('Organizar datos y generar Ticket ID').item.json.detalle_reclamo }}\n\nEVALUACIÓN AUTOMÁTICA:\n\n• Dictamen IA: `Aprobado`\n• Justificación: {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n• Acción Sugerida: {{ $('Parcear respuesta JSON de la IA').item.json.accion_sugerida }} \n──────────────────────────────────\nACCIÓN REQUERIDA: Confirma si autorizas la generación y envío automático de la Etiqueta de Cambio/Devolución al cliente.",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Autorizar y enviar etiqueta",
+            "disapproveLabel": "rechazado por humano"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1488,
+        400
+      ],
+      "id": "68568f04-7f7a-4596-bc3d-8f62c5349e60",
+      "name": "Validacion humana (HITL) (Slack)",
+      "webhookId": "5c613eda-86fb-4d0f-8e6d-e97908f440c5",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "2XUZ6i9pRA8ZBaZi",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "49ebf0b7-cabc-4867-b333-10cd058b3fc6",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1664,
+        400
+      ],
+      "id": "6e923aa7-01d3-4799-8566-dea37158a020",
+      "name": "¿Aprovado por un humano?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Obtener el ID del ticket desde el nodo inicial de captura\n  const idTicket = $('Organizar datos y generar Ticket ID').item.json.ID_Ticket;\n// 2. Generar un número aleatorio de 4 dígitos para el tracking\n  const randomHash = Math.floor(1000 + Math.random() * 9000);\n// 3. Crear el nuevo objeto con los datos de la etiqueta\n  return { json: { ...$input.item.json, //Conserva las propiedades anteriores\n  codigo_seguimiento: `BM-TRACK-${idTicket}-${randomHash}`, url_etiqueta: `https://blackmove.com/shipping/labels/LABEL-${idTicket}.pdf`,\n  fecha_emision: new Date().toISOString().split('T')[0] } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        320
+      ],
+      "id": "7c727631-0ba1-4e2b-9002-13d867f37e37",
+      "name": "Generacion de trackin y URL de etiqueta"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Ticket": "={{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+            "Estado": "Aprovado",
+            "Codigo_Seguimiento": "={{ $json.codigo_seguimiento }}",
+            "URL_Etiqueta": "={{ $json.url_etiqueta }}",
+            "Aprobacion humana": true
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        320
+      ],
+      "id": "93a64249-a3f7-497d-a3b3-e4780c03423a",
+      "name": "Actualizacion de estado, tracking y etiqueta",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Organizar datos y generar Ticket ID').item.json.body.email }}",
+        "subject": "=Solicitud Aprobada - Etiqueta de Cambio Ticket #{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+        "message": "=<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Solicitud Aprobada - Etiqueta de Cambio - Black Move</title>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #18181b;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f4f4f5; padding: 40px 10px;\">\n    <tr>\n      <td align=\"center\">\n        <table role=\"presentation\" width=\"100%\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\">\n          <!-- Encabezado Brand -->\n          <tr>\n            <td style=\"background-color: #000000; padding: 24px; text-align: center;\">\n              <h1 style=\"color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;\">BLACK MOVE</h1>\n            </td>\n          </tr>\n          <!-- Cuerpo del mensaje -->\n          <tr>\n            <td style=\"padding: 32px 24px;\">\n              <p style=\"font-size: 16px; margin-top: 0;\">Hola <strong>{{ $('Organizar datos y generar Ticket ID').item.json.body.nombreCompleto }}</strong>,</p>\n              \n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                ¡Buenas noticias! Tu solicitud de <strong>{{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}</strong> para el pedido <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}</strong> ha sido aprobada exitosamente (Ticket <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}</strong>).\n              </p>\n\n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                Hemos generado tu **Etiqueta Oficial de Devolución / Cambio**. Haz clic en el siguiente botón para descargar e imprimir tu etiqueta:\n              </p>\n\n              <!-- Botón de Descarga de Etiqueta -->\n              <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"margin: 28px auto;\">\n                <tr>\n                  <td align=\"center\" style=\"background-color: #000000; border-radius: 6px;\">\n                    <a href=\"https://blackmove.com/shipping/labels/LABEL-{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}.pdf\" target=\"_blank\" style=\"display: inline-block; padding: 14px 28px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: bold; letter-spacing: 0.5px;\">\n                      DESCARGAR ETIQUETA DE ENVIO\n                    </a>\n                  </td>\n                </tr>\n              </table>\n\n              <!-- Cuadro con Instrucciones de Despacho -->\n              <div style=\"background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 24px 0; border-radius: 6px;\">\n                <p style=\"margin: 0 0 12px 0; font-size: 14px; font-weight: bold; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;\">Pasos para realizar el envío:</p>\n                <ol style=\"margin: 0; padding-left: 20px; font-size: 14px; color: #334155; line-height: 1.6;\">\n                  <li>Imprime la etiqueta adjunta/descargada.</li>\n                  <li>Empaqueta la prenda en su bolsa u bolsa original con las etiquetas colocadas.</li>\n                  <li>Pega la etiqueta de forma visible en el exterior del paquete.</li>\n                  <li>Despacha el paquete en la sucursal de correo más cercana.</li>\n                </ol>\n              </div>\n\n              <p style=\"font-size: 14px; line-height: 1.6; color: #52525b;\">\n                Una vez que el paquete sea recibido en nuestro centro de distribución, procesaremos la reposición o devolución de inmediato.\n              </p>\n              \n              <p style=\"font-size: 15px; margin-bottom: 0; color: #18181b; padding-top: 16px;\">\n                ¡Gracias por tu paciencia!<br>\n                <strong>Equipo de Soporte Black Move</strong>\n              </p>\n            </td>\n          </tr>\n          <!-- Pie de página -->\n          <tr>\n            <td style=\"background-color: #f4f4f5; padding: 20px; text-align: center; border-top: 1px solid #e4e4e7;\">\n              <p style=\"margin: 0; font-size: 12px; color: #71717a;\">\n                &copy; Black Move - Indumentaria Deportiva.\n              </p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2272,
+        320
+      ],
+      "id": "531fa221-c5d8-4f52-a858-b7873c2152cc",
+      "name": "Envio de etiqueta al cliente (Gmail)",
+      "webhookId": "fc65cffa-0846-4f6f-98d0-9781eaa106a6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eD7U1QYeQ9s6yJws",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Ticket": "={{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+            "Estado": "Requiere correccion"
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Requiere correccion",
+                  "value": "Requiere correccion"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        496
+      ],
+      "id": "28e3e197-8f56-43df-aaec-4c649d9eb536",
+      "name": "Actualizacion de estado (Airtable)",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C3JFNH079",
+          "mode": "list",
+          "cachedResultName": "en-espera-de-correccion-blackmove"
+        },
+        "text": "=APROBACIÓN DESAPROBADA POR OPERADOR — TICKET #{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}\n\nDATOS DEL CLIENTE Y PEDIDO:\n• Cliente:{{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}\n• Email: {{ $('Organizar datos y generar Ticket ID').item.json.body.email }}\n• Nº Pedido: #{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}\n• Tipo de Solicitud: {{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\n\nDETALLE DEL RECLAMO:\n> {{ $('Organizar datos y generar Ticket ID').item.json.detalle_reclamo }}\n\nEVALUACIÓN INICIAL DE LA IA:\n• Dictamen IA: Aprobado\n• Justificación IA: {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n• Acción Sugerida IA: {{ $('Parcear respuesta JSON de la IA').item.json.accion_sugerida }}\n\nESTADO DEL CASO: El dictamen de aprobación fue desaprobado por el operador en la validación HITL. El estado del ticket en Airtable ha sido actualizado a Requiere corrección. {{ $('Toma de datos del formulario web').item.json.body.nombre }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        2064,
+        496
+      ],
+      "id": "02300727-2a53-4dd3-bf08-45eeea953edf",
+      "name": "Envio de caso al canal de correcciones",
+      "webhookId": "bbc7c3ba-f5a2-4c98-be3d-4688cf37956f",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "2XUZ6i9pRA8ZBaZi",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Ticket": "={{ $('Parcear respuesta JSON de la IA').item.json.id_ticket }}",
+            "Estado": "Rechazado"
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        -256
+      ],
+      "id": "14e464e5-00d9-487a-8b86-ab495f7cd10e",
+      "name": "Actualizacion de estado rechazado (Airtable)",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Organizar datos y generar Ticket ID').item.json.body.email }}",
+        "subject": "Respuesta a Solucitud de cambio/devolucion",
+        "message": "=<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Actualización de tu solicitud - Black Move</title>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #18181b;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f4f4f5; padding: 40px 10px;\">\n  <tr>\n    <td align=\"center\">\n      <table role=\"presentation\" width=\"100%\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\">\n        <!-- Encabezado Brand -->\n          <tr>\n            <td style=\"background-color: #000000; padding: 24px; text-align: center;\">\n              <h1 style=\"color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;\">BLACK MOVE</h1>\n            </td>\n          </tr>\n          <!-- Cuerpos de mensaje -->\n          <tr>\n            <td style=\"padding: 32px 24px;\">\n              <p style=\"font-size: 16px; margin-top: 0;\">\n                Hola <strong>{{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}</strong>,\n              </p>\n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                Te contactamos en relación a tu solicitud de <strong>{{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}</strong> con ticket <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}</strong> correspondiente al pedido <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}</strong>.\n              </p>\n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                Luego de evaluar los datos ingresados junto con nuestra política oficial de cambios y devoluciones, te informamos que <strong>no ha sido posible aprobar tu solicitud</strong>.\n              </p>\n              <!-- Cuadro destacado con motivo -->\n              <div style=\"background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin: 24px 0; border-radius: 4px;\">\n                <p style=\"margin: 0; font-size: 13px; font-weight: bold; color: #991b1b; text-transform: uppercase; letter-spacing: 0.5px;\">\n                  Motivo de la resolución:\n                </p>\n                <p style=\"margin: 8px 0 0 0; font-size: 14px; color: #7f1d1d; line-height: 1.5;\">\n                {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n                </p>\n              </div>\n              <p style=\"font-size: 14px; line-height: 1.6; color: #52525b;\">\n                Si consideras que existe algún dato adicional o deseas revisar tu caso con un representante, no dudes en responder directamente a este correo.\n              </p>\n              <p style=\"font-size: 15px; margin-bottom: 0; color: #18181b; padding-top: 16px;\">\n              Atentamente,<br>\n              <strong>Equipo de Soporte Black Move</strong>\n              </p>\n            </td>\n          </tr>\n          <!-- Pie de página -->\n          <tr>\n            <td style=\"background-color: #f4f4f5; padding: 20px; text-align: center; border-top: 1px solid #e4e4e7;\">\n              <p style=\"margin: 0; font-size: 12px; color: #71717a;\">\n                &copy; Black Move - Indumentaria Deportiva.\n              </p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false,
+          "ccList": "cuentadecuentas.15@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1664,
+        -256
+      ],
+      "id": "91284905-b2c6-4f1d-977d-fb92ee11dd0d",
+      "name": "Envio de correo de rechazo al cliente",
+      "webhookId": "f339ae5c-d456-438f-9633-c6dd048c1f27",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eD7U1QYeQ9s6yJws",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C4R5VVBDW",
+          "mode": "list",
+          "cachedResultName": "reclamos-blackmove-rechazados"
+        },
+        "text": "=RECLAMO RECHAZADO Y NOTIFICADO — TICKET #{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}\n\nDATOS DEL CLIENTE:\n• Cliente: {{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}\n• Email: {{ $('Organizar datos y generar Ticket ID').item.json.body.email }}\n• Nº Pedido: #{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}\n• Tipo de Solicitud: {{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\n\nDETALLE DEL RECLAMO:\n> {{ $('Organizar datos y generar Ticket ID').item.json.detalle_reclamo }}\n\nDICTAMEN Y JUSTIFICACIÓN:\n• Estado: Rechazado\n• Motivo de rechazo: {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n──────────────────────────────────\nCorreo electrónico de notificación enviado correctamente al cliente con la fundamentación correspondiente. {{ $('Toma de datos del formulario web').item.json.body.nombre }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1856,
+        -256
+      ],
+      "id": "ed7b5bd0-7aa4-45a9-84c7-95803e986518",
+      "name": "Envio de caso al canal de rechazados",
+      "webhookId": "d45ccaef-4322-4425-92fb-c4e91751c4cb",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "2XUZ6i9pRA8ZBaZi",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C3JMFSAUR",
+          "mode": "list",
+          "cachedResultName": "reclamos-blackmove"
+        },
+        "message": "=REVISIÓN MANUAL REQUERIDA — TICKET #{{ $('Parcear respuesta JSON de la IA').item.json.id_ticket }}\n\nDATOS DEL CLIENTE Y PEDIDO:\n• Cliente: {{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}\n• Nº Pedido: #{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}\n• Tipo de Solicitud: {{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\n• Fecha de Entrega: {{ $('Organizar datos y generar Ticket ID').item.json.body.fechaEntrega }}\n\nDETALLE DEL RECLAMO:\n> {{ $('Organizar datos y generar Ticket ID').item.json.detalle_reclamo }}\n\nEVALUACIÓN AUTOMÁTICA DE LA IA:\n• Dictamen IA: `Requiere_Revision`\n• Justificación: {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n• Acción Sugerida: {{ $('Parcear respuesta JSON de la IA').item.json.accion_sugerida }}\n• Fecha del reclamo: {{ $('Parcear respuesta JSON de la IA').item.json.fecha_reclamo }}\n──────────────────────────────────\nACCIÓN REQUERIDA: Por favor, evalúa el caso y selecciona una opción para definir la resolución final en Airtable y notificar al cliente. {{ $('Parcear respuesta JSON de la IA').item.json.id_ticket }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprovado",
+            "disapproveLabel": "Desaprado"
+          }
+        },
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        1488,
+        16
+      ],
+      "id": "67a4441e-8ce8-4696-976e-11ee7391dc47",
+      "name": "Validacion humana (HITL) (Slack)1",
+      "webhookId": "aab19238-ae8c-4e52-94d4-b7d5667eec5b",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "2XUZ6i9pRA8ZBaZi",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "86d22056-f986-4c06-9f73-e3027fe9d4f8",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1664,
+        16
+      ],
+      "id": "50dbad64-601e-42c8-885c-e52b073d37d5",
+      "name": "¿Aprovado por un humano?1"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Ticket": "={{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+            "Estado": "Requiere correccion"
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Requiere correccion",
+                  "value": "Requiere correccion"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        112
+      ],
+      "id": "1ed32946-5ac7-4de0-9ede-245905f74087",
+      "name": "Cambio de estado a requiere correccion",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C3JFNH079",
+          "mode": "list",
+          "cachedResultName": "en-espera-de-correccion-blackmove"
+        },
+        "message": "=REVISIÓN MANUAL Y CORRECCIÓN REQUERIDA — TICKET #{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}\\*\nDATOS DEL CLIENTE:\n• Cliente: {{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}\n• Email: {{ $('Organizar datos y generar Ticket ID').item.json.body.email }}\n• Nº Pedido: #{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}\n• Tipo de Solicitud: {{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}\n\nDETALLE DEL RECLAMO:\n> {{ $('Organizar datos y generar Ticket ID').item.json.detalle_reclamo }}\n\nDICTAMEN PREVIO IA (DESAPROBADO POR OPERADOR):\n• Justificación IA: {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n• Acción Sugerida IA: {{ $('Parcear respuesta JSON de la IA').item.json.accion_sugerida }}\n─────────────────────────────────\nACCIÓN REQUERIDA: Por favor, responde en el hilo de este mensaje escribiendo las instrucciones o aclaraciones exactas que deseas enviar por correo electrónico al cliente.",
+        "responseType": "freeText",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        2064,
+        112
+      ],
+      "id": "4d47ff4b-5277-45be-a769-5a2cfb481626",
+      "name": "Espera de correccion humana (Slack)",
+      "webhookId": "e4c9f2a3-db6d-4a60-a43e-72f522aaee12",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "2XUZ6i9pRA8ZBaZi",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Organizar datos y generar Ticket ID').item.json.body.email }}",
+        "subject": "=Solicitud de cambio/devolucion - Ticket: # {{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+        "message": "=<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Actualización de tu solicitud - Black Move</title>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #18181b;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f4f4f5; padding: 40px 10px;\">\n    <tr>\n      <td align=\"center\">\n        <table role=\"presentation\" width=\"100%\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\">\n          <!-- Encabezado Brand -->\n          <tr>\n            <td style=\"background-color: #000000; padding: 24px; text-align: center;\">\n              <h1 style=\"color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;\">BLACK MOVE</h1>\n            </td>\n          </tr>\n          <!-- Cuerpo del mensaje -->\n          <tr>\n            <td style=\"padding: 32px 24px;\">\n              <p style=\"font-size: 16px; margin-top: 0;\">Hola <strong>{{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}</strong>,</p>\n              \n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                Te contactamos en relación a tu solicitud de <strong>{{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}</strong> asociada al ticket <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}</strong> (Pedido <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}</strong>).\n              </p>\n\n              <!-- Cuadro con el mensaje personalizado ingresado desde Slack -->\n              <div style=\"background-color: #f8fafc; border-left: 4px solid #000000; padding: 16px; margin: 24px 0; border-radius: 4px;\">\n                <p style=\"margin: 0; font-size: 13px; font-weight: bold; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;\">Mensaje de nuestro equipo de soporte:</p>\n                <p style=\"margin: 8px 0 0 0; font-size: 14px; color: #334155; line-height: 1.5;\">\n                  {{ $json.data.text }}\n                </p>\n              </div>\n\n              <p style=\"font-size: 14px; line-height: 1.6; color: #52525b;\">\n                Si necesitas brindar información adicional o responder a estas indicaciones, puedes hacerlo directamente contestando a este correo.\n              </p>\n              \n              <p style=\"font-size: 15px; margin-bottom: 0; color: #18181b; padding-top: 16px;\">\n                Atentamente,<br>\n                <strong>Equipo de Soporte Black Move</strong>\n              </p>\n            </td>\n          </tr>\n          <!-- Pie de página -->\n          <tr>\n            <td style=\"background-color: #f4f4f5; padding: 20px; text-align: center; border-top: 1px solid #e4e4e7;\">\n              <p style=\"margin: 0; font-size: 12px; color: #71717a;\">\n                &copy; Black Move - Indumentaria Deportiva.\n              </p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2272,
+        112
+      ],
+      "id": "7707e1c0-eb36-4c1c-a5b8-9a59774f3d5c",
+      "name": "Envio de faltantes en la solicitud al cliente",
+      "webhookId": "2d74c4df-115a-4557-85b7-482725c83427",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eD7U1QYeQ9s6yJws",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Aprobacion humana": true,
+            "ID_Ticket": "={{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+            "Estado": "Requiere revision"
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Requiere correccion",
+                  "value": "Requiere correccion"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2480,
+        112
+      ],
+      "id": "6f410b91-1e3f-4741-8496-6a316deb90f6",
+      "name": "Actualizacion de estado a requiere revision",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID_Ticket": "={{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}",
+            "Estado": "Requiere revision",
+            "Aprobacion humana": true
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        -64
+      ],
+      "id": "9df48718-925a-4275-93f1-33215576257a",
+      "name": "Actualizacion de estado a requiere revision1",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Organizar datos y generar Ticket ID').item.json.body.email }}",
+        "subject": "Respuesta a solicitud de devolucion/cambio",
+        "message": "=<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Información Requerida - Black Move</title>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #f4f4f5; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #18181b;\">\n  <table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" style=\"background-color: #f4f4f5; padding: 40px 10px;\">\n    <tr>\n      <td align=\"center\">\n        <table role=\"presentation\" width=\"100%\" style=\"max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\">\n          <!-- Encabezado Brand -->\n          <tr>\n            <td style=\"background-color: #000000; padding: 24px; text-align: center;\">\n              <h1 style=\"color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;\">BLACK MOVE</h1>\n            </td>\n          </tr>\n          <!-- Cuerpo del mensaje -->\n          <tr>\n            <td style=\"padding: 32px 24px;\">\n              <p style=\"font-size: 16px; margin-top: 0;\">Hola <strong>{{ $('Toma de datos del formulario web').item.json.body.nombre }} {{ $('Toma de datos del formulario web').item.json.body.apellido }}</strong>,</p>\n              \n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                Estamos procesando tu solicitud de <strong>{{ $('Organizar datos y generar Ticket ID').item.json.tipo_solicitud }}</strong> asociada al ticket <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.ID_Ticket }}</strong> (Pedido <strong>#{{ $('Organizar datos y generar Ticket ID').item.json.numero_pedido }}</strong>).\n              </p>\n\n              <p style=\"font-size: 15px; line-height: 1.6; color: #3f3f46;\">\n                Para poder avanzar con la resolución de tu caso, necesitamos que nos brindes mayor detalle o documentación sobre tu reclamo.\n              </p>\n\n              <!-- Cuadro destacado con los faltantes requeridos -->\n              <div style=\"background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 24px 0; border-radius: 4px;\">\n                <p style=\"margin: 0; font-size: 13px; font-weight: bold; color: #1e40af; text-transform: uppercase; letter-spacing: 0.5px;\">Detalle de lo requerido:</p>\n                <p style=\"margin: 8px 0 0 0; font-size: 14px; color: #1e3a8a; line-height: 1.5;\">\n                  {{ $('Parcear respuesta JSON de la IA').item.json.justificacion }}\n                </p>\n              </div>\n\n              <p style=\"font-size: 14px; line-height: 1.6; color: #52525b;\">\n                Por favor, responde directamente a este correo adjuntando la información solicitada para que nuestro equipo pueda validar tu solicitud a la brevedad.\n              </p>\n              \n              <p style=\"font-size: 15px; margin-bottom: 0; color: #18181b; padding-top: 16px;\">\n                Quedamos a la espera de tu respuesta.<br>\n                <strong>Equipo de Soporte Black Move</strong>\n              </p>\n            </td>\n          </tr>\n          <!-- Pie de página -->\n          <tr>\n            <td style=\"background-color: #f4f4f5; padding: 20px; text-align: center; border-top: 1px solid #e4e4e7;\">\n              <p style=\"margin: 0; font-size: 12px; color: #71717a;\">\n                &copy; Black Move - Indumentaria Deportiva.\n              </p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        -64
+      ],
+      "id": "6b66b7a6-1ad3-4662-9d5c-5cd63a33f7db",
+      "name": "Envio de faltantes en la solicitud al cliente1",
+      "webhookId": "ec7201a9-e2c7-4e11-ba8b-1de294e94ee4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eD7U1QYeQ9s6yJws",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parcear respuesta JSON de la IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Toma de datos del formulario web": {
+      "main": [
+        [
+          {
+            "node": "Organizar datos y generar Ticket ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Base de conocimientos - RAG": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Organizar datos y generar Ticket ID": {
+      "main": [
+        [
+          {
+            "node": "Base de conocimientos - RAG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar ticket en Airtable": {
+      "main": [
+        [
+          {
+            "node": "Evaluacion del dictamen de la IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluacion del dictamen de la IA": {
+      "main": [
+        [
+          {
+            "node": "Actualizacion de estado rechazado (Airtable)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validacion humana (HITL) (Slack)1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validacion humana (HITL) (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parcear respuesta JSON de la IA": {
+      "main": [
+        [
+          {
+            "node": "Registrar ticket en Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validacion humana (HITL) (Slack)": {
+      "main": [
+        [
+          {
+            "node": "¿Aprovado por un humano?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Aprovado por un humano?": {
+      "main": [
+        [
+          {
+            "node": "Generacion de trackin y URL de etiqueta",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Actualizacion de estado (Airtable)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generacion de trackin y URL de etiqueta": {
+      "main": [
+        [
+          {
+            "node": "Actualizacion de estado, tracking y etiqueta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizacion de estado, tracking y etiqueta": {
+      "main": [
+        [
+          {
+            "node": "Envio de etiqueta al cliente (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizacion de estado (Airtable)": {
+      "main": [
+        [
+          {
+            "node": "Envio de caso al canal de correcciones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizacion de estado rechazado (Airtable)": {
+      "main": [
+        [
+          {
+            "node": "Envio de correo de rechazo al cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de correo de rechazo al cliente": {
+      "main": [
+        [
+          {
+            "node": "Envio de caso al canal de rechazados",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validacion humana (HITL) (Slack)1": {
+      "main": [
+        [
+          {
+            "node": "¿Aprovado por un humano?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Aprovado por un humano?1": {
+      "main": [
+        [
+          {
+            "node": "Actualizacion de estado a requiere revision1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cambio de estado a requiere correccion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cambio de estado a requiere correccion": {
+      "main": [
+        [
+          {
+            "node": "Espera de correccion humana (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Espera de correccion humana (Slack)": {
+      "main": [
+        [
+          {
+            "node": "Envio de faltantes en la solicitud al cliente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envio de faltantes en la solicitud al cliente": {
+      "main": [
+        [
+          {
+            "node": "Actualizacion de estado a requiere revision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizacion de estado a requiere revision1": {
+      "main": [
+        [
+          {
+            "node": "Envio de faltantes en la solicitud al cliente1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e681c9ec-31d8-47aa-a209-bdf2b5b73145",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa01136fe745ba264ade7e1bdd11ef40334e12f4fc97ed5282fd70782d65b120"
+  },
+  "nodeGroups": [],
+  "id": "jHJcPazswd9d0Tfu",
+  "tags": []
+}

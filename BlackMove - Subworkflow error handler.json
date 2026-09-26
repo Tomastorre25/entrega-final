@@ -1,0 +1,336 @@
+{
+  "name": "BlackMove - Subworkflow de errores",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        0
+      ],
+      "id": "11e5ca06-9c69-4948-9ebb-111a119dd3ee",
+      "name": "Disparador ante errores"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let ticketId = \"SIN_TICKET\";\nconst inputData = $input.item.json;\ntry {\n  const runData = inputData.execution.data.resultData.runData;\n  if (runData && runData['Edit Fields']) {\n    ticketId = runData['Edit Fields'][0].data.main[0][0].json.ID_Ticket;\n  }\n} catch (error) {\n  ticketId = \"NO_DETECTADO\";\n}\n\nreturn {\n  ticket_id: ticketId, error_message: inputData.error ? inputData.error.message : \"Sin mensaje de error\",\n  node_name: (inputData.error && inputData.error.node) ? inputData.error.node.name : \"Nodo desconocido\",\n  execution_url: inputData.execution ? inputData.execution.url : \"\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        0
+      ],
+      "id": "5aceec8c-efc8-4621-ad0f-8ce61d518d9c",
+      "name": "Parseo de falla y ticket"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appkoE2ch9DX1KkeY",
+          "mode": "list",
+          "cachedResultName": "Entrega Final",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblEE2SQo9j4hgTI9",
+          "mode": "list",
+          "cachedResultName": "Reclamos",
+          "cachedResultUrl": "https://airtable.com/appkoE2ch9DX1KkeY/tblEE2SQo9j4hgTI9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Error",
+            "Dictamen_IA": "\"Error de Sistema\"",
+            "Justificacion_IA": "=FALLA TÉCNICA EN NODO [{{ $json.node_name }}]: {{ $json.error_message }}",
+            "ID_Ticket": "={{ $json.ticket_id }}"
+          },
+          "matchingColumns": [
+            "ID_Ticket"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID_Ticket",
+              "displayName": "ID_Ticket",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Aprovado",
+                  "value": "Aprovado"
+                },
+                {
+                  "name": "Requiere revision",
+                  "value": "Requiere revision"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Requiere correccion",
+                  "value": "Requiere correccion"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aprobacion humana",
+              "displayName": "Aprobacion humana",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Tipo_Solicitud",
+              "displayName": "Tipo_Solicitud",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "cambio_talle",
+                  "value": "cambio_talle"
+                },
+                {
+                  "name": "devolucion",
+                  "value": "devolucion"
+                },
+                {
+                  "name": "defecto_fabrica",
+                  "value": "defecto_fabrica"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Detalle_reclamo",
+              "displayName": "Detalle_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Dictamen_IA",
+              "displayName": "Dictamen_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Justificacion_IA",
+              "displayName": "Justificacion_IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Accion_Sugerida",
+              "displayName": "Accion_Sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "fecha_reclamo",
+              "displayName": "fecha_reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Codigo_Seguimiento",
+              "displayName": "Codigo_Seguimiento",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "URL_Etiqueta",
+              "displayName": "URL_Etiqueta",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "43068ef3-d7a6-4abb-8e7b-7c7502fefb92",
+      "name": "Registro de error en Airtable",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "By1xj9uYafluaOkr",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C460986BC",
+          "mode": "list",
+          "cachedResultName": "errores-blackmove"
+        },
+        "text": "=ALERTA DE SISTEMA — FALLA EN AUTOMATIZACIÓN BLACK MOVE\nORIGEN DE LA FALLA:\n• Workflow: {{ $('Disparador ante errores').item.json.workflow.name }}\n• Nodo con Error: {{ $('Parseo de falla y ticket').item.json.node_name }}\n• ID de Ejecución: {{ $('Disparador ante errores').item.json.execution.id }}\n\nDETALLE DEL ERROR:\n> {{ $('Parseo de falla y ticket').item.json.error_message }}\n──────────────────────────────────\nACCIONES RECOMENDADAS:\n1. Revisa el estado de la API afectada (Anthropic / Notion / Airtable / Gmail).\n2. Haz clic para inspeccionar la ejecución: \n> {{ $('Disparador ante errores').item.json.execution.url }}|Ver Ejecución en n8n",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        576,
+        0
+      ],
+      "id": "69ba295d-f5b4-44dd-aa9d-f57fa0c83826",
+      "name": "Alerta al canal de errores (Slack)",
+      "webhookId": "10089d68-0133-4321-aedb-4fb156dbb3c4",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "2XUZ6i9pRA8ZBaZi",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Disparador ante errores": {
+      "main": [
+        [
+          {
+            "node": "Parseo de falla y ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parseo de falla y ticket": {
+      "main": [
+        [
+          {
+            "node": "Registro de error en Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registro de error en Airtable": {
+      "main": [
+        [
+          {
+            "node": "Alerta al canal de errores (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a0d195c7-7f3f-4c51-9950-5ee4f91006a5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aa01136fe745ba264ade7e1bdd11ef40334e12f4fc97ed5282fd70782d65b120"
+  },
+  "nodeGroups": [],
+  "id": "MwKHXK62Ap3BYIVJ",
+  "tags": []
+}
